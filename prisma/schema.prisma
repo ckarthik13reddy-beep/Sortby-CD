@@ -1,0 +1,213 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserTier {
+  FREE
+  PRO
+  BUSINESS
+  ENTERPRISE
+}
+
+enum MessageRole {
+  USER
+  ASSISTANT
+  SYSTEM
+}
+
+enum ConnectorType {
+  POSTGRES
+  MYSQL
+  BIGQUERY
+  SNOWFLAKE
+  GOOGLE_DRIVE
+  S3
+}
+
+enum TeamTier {
+  BUSINESS
+  ENTERPRISE
+}
+
+enum BillingStatus {
+  ACTIVE
+  UNPAID
+  TRIAL
+}
+
+enum TeamRole {
+  ADMIN
+  EDITOR
+  VIEWER
+}
+
+model User {
+  id                  String            @id @default(uuid())
+  email               String            @unique
+  password            String
+  name                String
+  tier                UserTier          @default(FREE)
+  customInstructions  String?           @db.Text
+  settings            Json?
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  
+  conversations       Conversation[]
+  notebooks           Notebook[]
+  files               File[]
+  dataConnectors      DataConnector[]
+  customAgents        CustomAgent[]
+  teamMemberships     TeamMember[]
+  
+  @@map("users")
+}
+
+model Conversation {
+  id          String    @id @default(uuid())
+  userId      String
+  teamId      String?
+  title       String
+  modelUsed   String    @default("gpt-4")
+  archived    Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  team        Team?     @relation(fields: [teamId], references: [id])
+  messages    Message[]
+  
+  @@index([userId])
+  @@index([teamId])
+  @@map("conversations")
+}
+
+model Message {
+  id              String       @id @default(uuid())
+  conversationId  String
+  role            MessageRole
+  content         String       @db.Text
+  attachments     Json?
+  tokensUsed      Int?
+  feedback        Int?         // -1 for thumbs down, 0 for neutral, 1 for thumbs up
+  createdAt       DateTime     @default(now())
+  
+  conversation    Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  
+  @@index([conversationId])
+  @@map("messages")
+}
+
+model Notebook {
+  id              String    @id @default(uuid())
+  userId          String
+  teamId          String?
+  name            String
+  description     String?
+  cells           Json      // Array of notebook cells
+  isScheduled     Boolean   @default(false)
+  scheduleConfig  Json?
+  lastRunAt       DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  team            Team?     @relation(fields: [teamId], references: [id])
+  
+  @@index([userId])
+  @@index([teamId])
+  @@map("notebooks")
+}
+
+model File {
+  id          String    @id @default(uuid())
+  userId      String
+  filename    String
+  filePath    String
+  fileSize    BigInt
+  mimeType    String
+  metadata    Json?
+  expiryDate  DateTime?
+  createdAt   DateTime  @default(now())
+  
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@map("files")
+}
+
+model DataConnector {
+  id          String        @id @default(uuid())
+  userId      String
+  type        ConnectorType
+  name        String
+  config      String        @db.Text // Encrypted JSON
+  isActive    Boolean       @default(true)
+  lastTested  DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@map("data_connectors")
+}
+
+model CustomAgent {
+  id            String    @id @default(uuid())
+  userId        String
+  name          String
+  description   String?
+  systemPrompt  String    @db.Text
+  templateId    String?
+  isPublic      Boolean   @default(false)
+  usageCount    Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([isPublic])
+  @@map("custom_agents")
+}
+
+model Team {
+  id            String        @id @default(uuid())
+  name          String
+  tier          TeamTier
+  seatCount     Int
+  billingStatus BillingStatus @default(TRIAL)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  
+  members       TeamMember[]
+  conversations Conversation[]
+  notebooks     Notebook[]
+  
+  @@map("teams")
+}
+
+model TeamMember {
+  id          String    @id @default(uuid())
+  teamId      String
+  userId      String
+  role        TeamRole  @default(VIEWER)
+  permissions Json?
+  joinedAt    DateTime  @default(now())
+  
+  team        Team      @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([teamId, userId])
+  @@index([teamId])
+  @@index([userId])
+  @@map("team_members")
+}
