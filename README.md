@@ -1,45 +1,53 @@
 # DataAI - AI-Powered Data Analysis Platform
 
+## 🚧 Backend Integration In Progress
+
+**Current Status**: The UI is fully built with all features complete. Backend integration is actively being implemented.
+
+**See `BACKEND_INTEGRATION.md` for complete integration guide and progress tracking.**
+
+---
+
+## Overview
+
 DataAI is a comprehensive, full-stack AI-powered data analysis platform similar to Julius AI. It enables users to chat with data using natural language, create Jupyter-style notebooks, connect to multiple data sources, and generate customizable visualizations.
 
-## 🚀 Features
+## ✅ Features Status
 
-- **Natural Language Chat**: Interact with your data using conversational AI
-- **Drag & Drop Charts**: Drag charts from dashboards directly into chat for AI analysis
-- **Jupyter-Style Notebooks**: Create, edit, and run notebook cells with AI assistance
-- **AI-Powered Dashboards**: Generate visualizations with natural language prompts
-- **Interactive Chart Editing**: Click charts to modify them with conversational commands
-- **Multi-Source Data Connections**: Connect to PostgreSQL, MySQL, BigQuery, Snowflake, Google Drive, and more
-- **Customizable Visualizations**: Generate charts with multiple themes (Scientific, Business, Dark, Interactive)
-- **Dashboard Scheduling**: Automate dashboard updates with flexible scheduling options
-- **Pre-built AI Agents**: Use specialized agents for Marketing, Finance, Product, Data, and RevOps analysis
-- **Team Collaboration**: Share conversations, notebooks, and files with team members
-- **File Management**: Upload and analyze CSV, Excel, JSON, and other data files
-- **Advanced Settings**: Custom instructions, model selection, feature toggles, and more
+### Completed (UI + Backend)
+- ✅ **Natural Language Chat**: Real-time streaming chat with @assistant-ui/react
+- ✅ **Authentication**: NextAuth + AWS Cognito with Google federated login
+- ✅ **Backend API Layer**: Complete API client with 30+ functions
+
+### In Progress (UI Complete, Backend Integration Pending)
+- 🚧 **AI-Powered Dashboards**: UI complete, needs API integration
+- 🚧 **Data Source Connections**: UI complete, needs API integration
+- 🔜 **Browse Data**: Backend has feature, needs to copy to UI
+
+### UI-Only (Backend APIs Pending)
+- 📋 **Jupyter-Style Notebooks**: Full UI, awaiting backend APIs
+- 📋 **File Management**: Drag-drop upload, awaiting backend APIs
+- 📋 **Team Collaboration**: Complete team workspace UI
+- 📋 **Semantic Layer**: AI customization settings
+- 📋 **Pre-built AI Agents**: Agent marketplace UI
 
 ## 🛠️ Technology Stack
 
 ### Frontend
-- **Next.js 14** with App Router and TypeScript
+- **Next.js 14.2.18** with App Router and TypeScript
 - **Tailwind CSS** with shadcn/ui components
+- **@assistant-ui/react** for AI chat streaming
+- **NextAuth.js** with AWS Cognito authentication
 - **Zustand** for state management
-- **Recharts + D3.js** for visualizations
-- **Monaco Editor** for code editing
-- **React Hook Form + Zod** for form validation
-- **Socket.io** for real-time communication
+- **Recharts** for visualizations
+- **@tanstack/react-query** for data fetching
 
-### Backend
-- **Node.js + Express** (or Next.js API routes)
-- **PostgreSQL** with Prisma ORM
-- **Redis** for caching
-- **AWS S3** for file storage
-- **Bull** for job queuing
-- **NextAuth.js** for authentication
-
-### AI Integration
-- **OpenAI GPT-4** for chat and code generation
-- **LangChain** for advanced AI workflows
-- **Python Runtime** for code execution
+### Backend (Integration Target)
+- **Next.js 15.5.6** API server
+- **Server-Sent Events (SSE)** for streaming
+- **PostgreSQL** database
+- **AWS Cognito** for authentication
+- **RESTful APIs** at `NEXT_PUBLIC_API_URL`
 
 ## 📋 Prerequisites
 
