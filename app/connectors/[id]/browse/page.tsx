@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useSession } from "next-auth/react";
-import { useRouter, useParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useQueryState } from "nuqs";
 import { Loader2, ArrowLeft, Database } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -17,8 +16,6 @@ import {
 } from "./components";
 
 export default function BrowseDataPage() {
-  const { status } = useSession();
-  const router = useRouter();
   const params = useParams();
   const datasourceId = params.id as string;
 
@@ -46,10 +43,8 @@ export default function BrowseDataPage() {
   }, [datasourceId]);
 
   useEffect(() => {
-    if (status === "authenticated") {
-      loadDataSource();
-    }
-  }, [status, loadDataSource]);
+    loadDataSource();
+  }, [loadDataSource]);
 
   const handleSchemaSelect = (schemaName: string) => {
     setSchema(schemaName);
@@ -71,21 +66,6 @@ export default function BrowseDataPage() {
         break;
     }
   };
-
-  // Show loading state while checking session
-  if (status === "loading") {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
-
-  // Redirect to login if not authenticated
-  if (status === "unauthenticated") {
-    router.push("/login");
-    return null;
-  }
 
   // Determine current view level
   const getCurrentView = () => {

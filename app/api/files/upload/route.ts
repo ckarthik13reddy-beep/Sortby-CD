@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { writeFile, mkdir } from "fs/promises"
 import { join } from "path"
 import { existsSync } from "fs"
-import prisma from "@/lib/db/prisma"
+import { prisma } from "@/lib/db/prisma"
 
 export async function POST(request: NextRequest) {
   try {

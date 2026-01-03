@@ -1,8 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import { AppLayout } from "@/components/layout/app-layout";
 import {
   Database,
@@ -99,9 +97,6 @@ const fallbackConnectors = [
 type TestStatus = "idle" | "testing" | "success" | "error";
 
 export default function ConnectorsPage() {
-  const { data: session, status } = useSession();
-  const router = useRouter();
-
   // State
   const [dataSources, setDataSources] = useState<DataSource[]>([]);
   const [connectors, setConnectors] = useState<ConnectorMetadata[]>([]);
@@ -148,13 +143,11 @@ export default function ConnectorsPage() {
 
   // Load data sources and connectors
   const loadData = useCallback(async () => {
-    if (!session?.idToken) return;
-
     try {
       setLoading(true);
       setError(null);
 
-      const accessToken = session.idToken;
+      const accessToken = "test-token";
 
       // Load connectors and data sources
       const [connectorsRes, dataSourcesRes] = await Promise.all([
@@ -172,13 +165,11 @@ export default function ConnectorsPage() {
     } finally {
       setLoading(false);
     }
-  }, [session?.idToken]);
+  }, []);
 
   useEffect(() => {
-    if (status === "authenticated") {
-      loadData();
-    }
-  }, [status, loadData]);
+    loadData();
+  }, [loadData]);
 
   // Handle connector selection
   const handleConnectorClick = (connector: ConnectorMetadata) => {
@@ -228,7 +219,7 @@ export default function ConnectorsPage() {
 
   // Test connection
   const handleTestConnection = async () => {
-    if (!selectedConnector || !session?.idToken) return;
+    if (!selectedConnector) return;
 
     setTestStatus("testing");
     setTestMessage("");
@@ -239,7 +230,7 @@ export default function ConnectorsPage() {
           connector_type: selectedConnector.type,
           config: getConfig(),
         },
-        session.idToken
+        "test-token"
       );
 
       if (result.success) {
@@ -257,7 +248,7 @@ export default function ConnectorsPage() {
 
   // Create connection
   const handleConnect = async () => {
-    if (!selectedConnector || !formData.displayName || !session?.idToken) return;
+    if (!selectedConnector || !formData.displayName) return;
 
     setIsConnecting(true);
     try {
@@ -270,7 +261,7 @@ export default function ConnectorsPage() {
           is_active: true,
           config: getConfig(),
         },
-        session.idToken
+        "test-token"
       );
 
       setShowConnectionDialog(false);
@@ -286,10 +277,8 @@ export default function ConnectorsPage() {
 
   // Set default data source
   const handleSetDefault = async (id: string) => {
-    if (!session?.idToken) return;
-
     try {
-      await updateDataSource(id, { is_default: true }, session.idToken);
+      await updateDataSource(id, { is_default: true }, "test-token");
       await loadData();
     } catch (err) {
       console.error("Error setting default:", err);
@@ -300,10 +289,9 @@ export default function ConnectorsPage() {
   // Delete data source
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`Delete data source "${name}"? This cannot be undone.`)) return;
-    if (!session?.idToken) return;
 
     try {
-      await deleteDataSource(id, session.idToken);
+      await deleteDataSource(id, "test-token");
       await loadData();
     } catch (err) {
       console.error("Error deleting data source:", err);
