@@ -2,7 +2,7 @@
  * API client for backend - Vanna 2.0
  */
 
-import { appConfig } from '@/lib/config';
+import { appConfig } from './config';
 
 // Use centralized config for API URL
 const API_BASE_URL = appConfig.apiUrl;
